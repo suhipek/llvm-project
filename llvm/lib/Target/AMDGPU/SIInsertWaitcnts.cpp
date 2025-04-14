@@ -2059,7 +2059,7 @@ bool SIInsertWaitcnts::mayAccessScratchThroughFlat(
   });
 }
 
-static bool isCacheInvOrWBInst(MachineInstr &Inst) {
+static bool isGFX12CacheInvOrWBInst(MachineInstr &Inst) {
   auto Opc = Inst.getOpcode();
   return Opc == AMDGPU::GLOBAL_INV || Opc == AMDGPU::GLOBAL_WB ||
          Opc == AMDGPU::GLOBAL_WBINV;
@@ -2140,11 +2140,16 @@ void SIInsertWaitcnts::updateEventWaitcntAfter(MachineInstr &Inst,
       ScoreBrackets->updateByEvent(TII, TRI, MRI, LDS_ACCESS, Inst);
     }
   } else if (TII->isFLAT(Inst)) {
+    if (isGFX12CacheInvOrWBInst(Inst)) {
+      ScoreBrackets->updateByEvent(TII, TRI, MRI, getVmemWaitEventType(Inst),
+                                   Inst);
+      return;
+    }
+
     int FlatASCount = 0;
+    assert(Inst.mayLoadOrStore());
 
-    assert(isCacheInvOrWBInst(Inst) || Inst.mayLoadOrStore());
-
-    if (isCacheInvOrWBInst(Inst) || mayAccessVMEMThroughFlat(Inst)) {
+    if (mayAccessVMEMThroughFlat(Inst)) {
       ++FlatASCount;
       ScoreBrackets->updateByEvent(TII, TRI, MRI, getVmemWaitEventType(Inst),
                                    Inst);
