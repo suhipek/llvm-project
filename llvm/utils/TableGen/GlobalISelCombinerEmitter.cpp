@@ -806,14 +806,12 @@ bool CombineRuleBuilder::parseAll() {
 
   if (Act0Op == "match" && Act1Op == "apply") {
     if (!Parser.parsePatternList(
-      Act0,
-            [this](auto Pat) { return addMatchPattern(std::move(Pat)); },
+            Act0, [this](auto Pat) { return addMatchPattern(std::move(Pat)); },
             "match", (RuleDef.getName() + "_match").str()))
       return false;
 
     if (!Parser.parsePatternList(
-      Act1,
-            [this](auto Pat) { return addApplyPattern(std::move(Pat)); },
+            Act1, [this](auto Pat) { return addApplyPattern(std::move(Pat)); },
             "apply", (RuleDef.getName() + "_apply").str()))
       return false;
 
@@ -830,12 +828,13 @@ bool CombineRuleBuilder::parseAll() {
       return false;
 
     if (MatchPats.empty() || ApplyPats.empty()) {
-      PrintError("'combine' action needs at least one pattern to match, and C++ code to apply");
+      PrintError("'combine' action needs at least one pattern to match, and "
+                 "C++ code to apply");
       return false;
     }
   } else {
     PrintError("Expected both a 'match' and 'apply' action in combine rule, "
-      "or a single 'combine' action");
+               "or a single 'combine' action");
     return false;
   }
 
