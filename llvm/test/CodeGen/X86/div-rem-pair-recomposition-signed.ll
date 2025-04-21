@@ -1337,6 +1337,41 @@ end:
   ret i32 %div
 }
 
+define i32 @scalar_i32_const_pow2_divisor(i32 %x, ptr %rem) nounwind {
+; X86-LABEL: scalar_i32_const_pow2_divisor:
+; X86:       # %bb.0:
+; X86-NEXT:    pushl %esi
+; X86-NEXT:    movl {{[0-9]+}}(%esp), %ecx
+; X86-NEXT:    movl {{[0-9]+}}(%esp), %edx
+; X86-NEXT:    leal 255(%edx), %eax
+; X86-NEXT:    testl %edx, %edx
+; X86-NEXT:    cmovnsl %edx, %eax
+; X86-NEXT:    movl %eax, %esi
+; X86-NEXT:    andl $-256, %esi
+; X86-NEXT:    subl %esi, %edx
+; X86-NEXT:    movl %edx, (%ecx)
+; X86-NEXT:    sarl $8, %eax
+; X86-NEXT:    popl %esi
+; X86-NEXT:    retl
+;
+; X64-LABEL: scalar_i32_const_pow2_divisor:
+; X64:       # %bb.0:
+; X64-NEXT:    # kill: def $edi killed $edi def $rdi
+; X64-NEXT:    leal 255(%rdi), %eax
+; X64-NEXT:    testl %edi, %edi
+; X64-NEXT:    cmovnsl %edi, %eax
+; X64-NEXT:    movl %eax, %ecx
+; X64-NEXT:    andl $-256, %ecx
+; X64-NEXT:    subl %ecx, %edi
+; X64-NEXT:    movl %edi, (%rsi)
+; X64-NEXT:    sarl $8, %eax
+; X64-NEXT:    retq
+  %rem1 = srem i32 %x, 256
+  store i32 %rem1, ptr %rem, align 4
+  %div = sdiv i32 %x, 256
+  ret i32 %div
+}
+
 define i32 @negative_different_x(i32 %x0, i32 %x1, i32 %y, ptr %divdst) nounwind {
 ; X86-LABEL: negative_different_x:
 ; X86:       # %bb.0:
