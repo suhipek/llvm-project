@@ -639,6 +639,9 @@ def AUIPC : RVInstU<OPC_AUIPC, (outs GPR:$rd), (ins uimm20_auipc:$imm20),
 def JAL : RVInstJ<OPC_JAL, (outs GPR:$rd), (ins simm21_lsb0_jal:$imm20),
                   "jal", "$rd, $imm20">, Sched<[WriteJal]>;
 
+def JREL : RVInstJ<OPC_CUSTOM_3, (outs GPR:$rd), (ins simm21_lsb0_jal:$imm20),
+                    "jrel", "$rd, $imm20">, Sched<[WriteJal]>;
+
 def JALR : RVInstI<0b000, OPC_JALR, (outs GPR:$rd),
                    (ins GPR:$rs1, simm12:$imm12),
                    "jalr", "$rd, ${imm12}(${rs1})">,
@@ -973,6 +976,8 @@ def : InstAlias<"bleu $rs, $rt, $offset",
 
 def : InstAlias<"j $offset",   (JAL X0, simm21_lsb0_jal:$offset)>;
 def : InstAlias<"jal $offset", (JAL X1, simm21_lsb0_jal:$offset)>;
+
+def : InstAlias<"jre $offset", (JREL X0, simm21_lsb0_jal:$offset)>;
 
 // Non-zero offset aliases of "jalr" are the lowest weight, followed by the
 // two-register form, then the one-register forms and finally "ret".
