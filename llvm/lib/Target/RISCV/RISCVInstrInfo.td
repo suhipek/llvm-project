@@ -639,14 +639,16 @@ def AUIPC : RVInstU<OPC_AUIPC, (outs GPR:$rd), (ins uimm20_auipc:$imm20),
 def JAL : RVInstJ<OPC_JAL, (outs GPR:$rd), (ins simm21_lsb0_jal:$imm20),
                   "jal", "$rd, $imm20">, Sched<[WriteJal]>;
 
-def JREL : RVInstJ<OPC_CUSTOM_3, (outs GPR:$rd), (ins simm21_lsb0_jal:$imm20),
-                    "jrel", "$rd, $imm20">, Sched<[WriteJal]>;
-
 def JALR : RVInstI<0b000, OPC_JALR, (outs GPR:$rd),
                    (ins GPR:$rs1, simm12:$imm12),
                    "jalr", "$rd, ${imm12}(${rs1})">,
            Sched<[WriteJalr, ReadJalr]>;
 } // hasSideEffects = 0, mayLoad = 0, mayStore = 0
+
+let hasSideEffects = 1, mayLoad = 0, mayStore = 0 in {
+  def JREL : RVInstJ<OPC_CUSTOM_3, (outs GPR:$rd), (ins simm21_lsb0_jal:$imm20),
+                    "jrel", "$rd, $imm20">, Sched<[WriteJal]>;
+} // hasSideEffects = 1, mayLoad = 0, mayStore = 0
 
 def BEQ  : BranchCC_rri<0b000, "beq">;
 def BNE  : BranchCC_rri<0b001, "bne">;
@@ -733,6 +735,18 @@ def FENCE_TSO : RVInstI<0b000, OPC_MISC_MEM, (outs), (ins), "fence.tso", "">, Sc
 }
 
 def FENCE_I : RVInstI<0b001, OPC_MISC_MEM, (outs), (ins), "fence.i", "">, Sched<[]> {
+  let rs1 = 0;
+  let rd = 0;
+  let imm12 = 0;
+}
+
+def FENCE_RE_BEG: RVInstI<0b100, OPC_MISC_MEM, (outs), (ins), "fence.re.beg", "">, Sched<[]> {
+  let rs1 = 0;
+  let rd = 0;
+  let imm12 = 0;
+}
+
+def FENCE_RE_END: RVInstI<0b101, OPC_MISC_MEM, (outs), (ins), "fence.re.end", "">, Sched<[]> {
   let rs1 = 0;
   let rd = 0;
   let imm12 = 0;
