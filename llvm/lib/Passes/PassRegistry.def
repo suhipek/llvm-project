@@ -656,6 +656,8 @@ LOOP_ANALYSIS("should-run-extra-simple-loop-unswitch",
 #ifndef LOOP_PASS
 #define LOOP_PASS(NAME, CREATE_PASS)
 #endif
+LOOP_PASS("insert-jre", InsertRunaheadTriggerPass())
+
 LOOP_PASS("canon-freeze", CanonicalizeFreezeInLoopsPass())
 LOOP_PASS("dot-ddg", DDGDotPrinterPass())
 LOOP_PASS("guard-widening", GuardWideningPass())
